@@ -14,8 +14,9 @@ const App = () => {
   const [connected, setConnected] = useState(false);
   const [accounts, setAccounts] = useState([]);
   const [ratingUpdateContract, setRatingUpdateContract] = useState(null);
+  const [cpuAddress, setCpuAddress] = useState("");
 
-  const choices = ["グー", "チョキ", "パー"];
+  const choices = ["Rock", "Scissors", "Paper"];
 
   useEffect(() => {
     if (window.ethereum) {
@@ -60,15 +61,19 @@ const App = () => {
     let loserAddr = null;
 
     if (userChoice === cpuChoice) {
-      setResult("引き分け");
+      setResult("even");
     } else if (
-        (userChoice === "グー" && cpuChoice === "チョキ") ||
-        (userChoice === "チョキ" && cpuChoice === "パー") ||
-        (userChoice === "パー" && cpuChoice === "グー")
+        (userChoice === "Rock" && cpuChoice === "Scissors") ||
+        (userChoice === "Scissors" && cpuChoice === "Paper") ||
+        (userChoice === "Paper" && cpuChoice === "Rock")
     ) {
-      setResult("勝ち");
+      setResult("Win");
+      winnerAddr = accounts[0]
+      loserAddr = cpuAddress;
     } else {
-      setResult("負け");
+      setResult("Lose");
+      winnerAddr = cpuAddress
+      loserAddr = accounts[0]
     }
 
     // 勝者が決まった場合、勝敗結果をスマートコントラクトに書き込む
@@ -85,14 +90,39 @@ const App = () => {
     setConnected(true);
   };
 
+  const getImageFilename = (choice) => {
+    switch (choice) {
+      case "Rock":
+        return "sushimaster256goo.png";
+      case "Scissors":
+        return "sushimaster256choki.png";
+      case "Paper":
+        return "sushimaster256paaa.png";
+      default:
+        return "";
+    }
+  }
+
   return (
       <div className="App">
-        <h1>じゃんけんゲーム</h1>
-          {connected ? (
-              <p>接続されたアカウント: {accounts[0]}</p>
-          ) : (
-              <button onClick={connectWallet}>ウォレットに接続</button>
-          )}
+        <h1>Rock Paper Scissors Game</h1>
+        {connected ? (
+            <p>Connected account: {accounts[0]}</p>
+        ) : (
+            <button onClick={connectWallet}>Connect Wallet</button>
+        )}
+
+        <div>
+          <label>
+            CPU Address:
+            <input
+                type="text"
+                value={cpuAddress}
+                onChange={(e) => setCpuAddress(e.target.value)}
+            />
+          </label>
+        </div>
+
         <div>
           {choices.map((choice) => (
               <button key={choice} onClick={() => handleClick(choice)}>
@@ -100,11 +130,26 @@ const App = () => {
               </button>
           ))}
         </div>
-        <div>
-          <h2>あなたの選択: {userChoice}</h2>
-          <h2>CPUの選択: {cpuChoice}</h2>
+        <div className="gameArea">
+          <div className="playerChoice">
+            <h2>Your choice: {userChoice}</h2>
+            {userChoice && (
+                <img src={getImageFilename(userChoice)} alt={userChoice} />
+            )}
+          </div>
+          <div className="versus">
+            <h2>VS</h2>
+          </div>
+          <div className="cpuChoice">
+            <h2>CPU's choice: {cpuChoice}</h2>
+            {cpuChoice && (
+                <img src={getImageFilename(cpuChoice)} alt={cpuChoice} />
+            )}
+          </div>
         </div>
-        <h2>結果: {result}</h2>
+        <div className="resultArea">
+          <h2>Result: {result}</h2>
+        </div>
       </div>
   );
 };

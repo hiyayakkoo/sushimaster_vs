@@ -6,6 +6,27 @@
   sans-serif;
 }
 
+.gameArea {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.playerChoice,
+.cpuChoice,
+.versus {
+  padding: 1rem;
+}
+
+.versus {
+  font-size: 1.5rem;
+}
+
+.resultArea {
+  text-align: center;
+  margin-top: 1rem;
+}
+
 button {
   background: #61dafb;
   font-size: 1.2rem;
