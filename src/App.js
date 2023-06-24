@@ -46,7 +46,7 @@ const App = () => {
         // 現在のガス価格を取得
         const currentGasPrice = await window.web3.eth.getGasPrice();
         // ガス価格を1.2倍に上乗せ
-        const increasedGasPrice = BigInt(Math.round(Number(currentGasPrice) * 1.2));
+        const increasedGasPrice = bigint(Math.round(Number(currentGasPrice) * 1.2));
 
 
         await ratingUpdateContract.methods
