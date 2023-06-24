@@ -43,15 +43,9 @@ const App = () => {
   const updateRating = async (winner, loser) => {
     if (ratingUpdateContract) {
       try {
-        // 現在のガス価格を取得
-        const currentGasPrice = await window.web3.eth.getGasPrice();
-        // ガス価格を1.2倍に上乗せ
-        const increasedGasPrice = bigint(Math.round(Number(currentGasPrice) * 1.2));
-
-
         await ratingUpdateContract.methods
             .updateRatingValue(winner, loser)
-            .send({ from: accounts[0], gasPrice:increasedGasPrice.toString() });
+            .send({ from: accounts[0] });
       } catch (err) {
         console.error("エラーが発生しました:", err);
       }
