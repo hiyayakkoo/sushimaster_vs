@@ -19,6 +19,11 @@ const App = () => {
   const choices = ["Rock", "Scissors", "Paper"];
 
   useEffect(() => {
+
+    if (typeof BigInt === 'undefined') {
+      window.alert("お使いのブラウザはBigIntをサポートしていません。異なるブラウザをお試しください。");
+    }
+
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
 
@@ -38,9 +43,15 @@ const App = () => {
   const updateRating = async (winner, loser) => {
     if (ratingUpdateContract) {
       try {
+        // 現在のガス価格を取得
+        const currentGasPrice = await window.web3.eth.getGasPrice();
+        // ガス価格を1.2倍に上乗せ
+        const increasedGasPrice = BigInt(Math.round(Number(currentGasPrice) * 1.2));
+
+
         await ratingUpdateContract.methods
             .updateRatingValue(winner, loser)
-            .send({ from: accounts[0] });
+            .send({ from: accounts[0], gasPrice:increasedGasPrice.toString() });
       } catch (err) {
         console.error("エラーが発生しました:", err);
       }
