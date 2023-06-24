@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Web3 from "web3";
+import RatingUpdateContractABI from "./contracts/RatingUpdate.json";
 import "./App.css";
+
+// コントラクトアドレスを定数として設定（適切な値に置き換えてください）
+const RATING_UPDATE_CONTRACT_ADDRESS = "0x07167774e345c22005CA50f134Fc3A148dD13dDb";
+
 
 const App = () => {
   const [userChoice, setUserChoice] = useState(null);
@@ -8,18 +13,39 @@ const App = () => {
   const [result, setResult] = useState("");
   const [connected, setConnected] = useState(false);
   const [accounts, setAccounts] = useState([]);
+  const [ratingUpdateContract, setRatingUpdateContract] = useState(null);
 
   const choices = ["グー", "チョキ", "パー"];
 
   useEffect(() => {
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
+
+      const contractInstance = new window.web3.eth.Contract(
+          RatingUpdateContractABI,
+          RATING_UPDATE_CONTRACT_ADDRESS
+      );
+      setRatingUpdateContract(contractInstance);
     } else if (window.web3) {
       window.web3 = new Web3(window.web3.currentProvider);
     } else {
-      window.alert("Ethereum ブラウザのインストールを検討してください。MetaMask を試してください!");
+      // Web3やMetaMaskが無い場合はアラートを表示
+      window.alert("Ethereumブラウザのインストールを検討してください。MetaMaskを試してください!");
     }
   }, []);
+
+  const updateRating = async (winner, loser) => {
+    if (ratingUpdateContract) {
+      try {
+        await ratingUpdateContract.methods
+            .updateRatingValue(winner, loser)
+            .send({ from: accounts[0] });
+      } catch (err) {
+        console.error("エラーが発生しました:", err);
+      }
+    }
+  };
+
 
   const handleClick = (choice) => {
     setUserChoice(choice);
@@ -30,6 +56,9 @@ const App = () => {
   };
 
   const determineWinner = (userChoice, cpuChoice) => {
+    let winnerAddr = null;
+    let loserAddr = null;
+
     if (userChoice === cpuChoice) {
       setResult("引き分け");
     } else if (
@@ -40,6 +69,11 @@ const App = () => {
       setResult("勝ち");
     } else {
       setResult("負け");
+    }
+
+    // 勝者が決まった場合、勝敗結果をスマートコントラクトに書き込む
+    if (winnerAddr && loserAddr) {
+      updateRating(winnerAddr, loserAddr);
     }
   };
 
