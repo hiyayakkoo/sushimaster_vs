@@ -20,10 +20,6 @@ const App = () => {
 
   useEffect(() => {
 
-    if (typeof BigInt === 'undefined') {
-      window.alert("お使いのブラウザはBigIntをサポートしていません。異なるブラウザをお試しください。");
-    }
-
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
 
